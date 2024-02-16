@@ -55,31 +55,7 @@ app.use(expressJwt({
   path: ['/auth/login', '/auth/register', '/login', '/register', '/members/login']
 }));
 
-// Configuración de Swagger
-const swaggerOptions = {
-  swaggerDefinition: {
-    info: {
-      title: 'FlowFit API',
-      description: 'Documentación de la API de FlowFit',
-      contact: {
-        name: 'Soporte'
-      },
-      servers: ['http://localhost:3000']
-    },
-    securityDefinitions: {
-      Bearer: {
-        type: 'apiKey',
-        name: 'Authorization',
-        scheme: 'bearer',
-        in: 'header',
-      },
-    },
-  },
-  apis: ['./routes/*.js']
-};
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use('/membership_sales', membershipSalesRoutes);
 app.use('/providers', providersRoutes);
 app.use('/products', productsRoutes);
