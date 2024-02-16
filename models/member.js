@@ -92,7 +92,15 @@ class Member {
       throw err;
     }
   }
-
+  static async getAll() {
+    try {
+      const connection = await mysql.createConnection(config);
+      const [rows] = await connection.execute('SELECT * FROM members');
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+  }
   static async delete(id, token) {
     try {
       const connection = await mysql.createConnection(config);
