@@ -1,0 +1,27 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "api de flowfit",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Carlos",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1545.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "expres": "^0.0.5",
+    "express": "^4.18.2",
+    "express-jwt": "^8.4.1",
+    "firebase-admin": "^12.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mssql": "^10.0.1",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.9.0",
+    "pg": "^8.11.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0"
+  }
+}

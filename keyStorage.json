@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "flowfitimagenes",
+  "private_key_id": "49baee9988e63b2a612494165abb777ba5dd269e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDisRWuyupIP0ii\nh/xhIvXpBmo2be78OtGKyS96TSZWJ34mMj72iW66CXfnr2wl+N0GqFAGSGqgZsbk\nH1mYd8MDorhRyWSmrnx5H4QGE888+f0R7duQs9zzwDKaGaVFwZ68vX1hOh0LLEqC\nvepMx/Y1pGKiBp8TZIglfINY8b4BEm3Nk+7GjPi+lYUBbIvtMlc+0S2H/RHdWNeF\n0bgclL5RogmxjV2ikoXm+rW5K1ek8To91qrPmE+XIRSlbBeoKgOZdEvX95ido1/K\n0MiC8G9gFoUa7MdmxBO1UuyM7Zsl4pnIyMb7SDNM1eIXFt+f4OE6E6R7inAHVxDm\nUWFAOLgdAgMBAAECggEAETy/QKqepJ5l8DCVmO/xnFB9ObpOQSZafJ/OWRG4vTWv\nj/P4zwJQRcZ73vAl3GqkqTbvLtXJgHzlhBR7hEPHCRBnIkDwGFni48rpB7/wiDBy\nH9o4Ud57X0WEE4JTtjmCJSk7eW3T0N+t+BcSKS3N+PI7qxpZyj22DzOn69bQndVw\n4Clhlg1Xe/vymblc98Oe2rRlra2bYmEg3Np8GUkXP51BnVXxRs+4F8w51nRbCuUM\nFb2PrGeVL9oeMrYM2ANy3B8DbZw93HJjp/kdHbXR2gkMV5UD3Uo+dTOPYRwBiG+q\nVdGTlVLTx16wc1RTutfGUp3i1ylAKygIsEKrBmjlwQKBgQD/PwJpjipQcrUdqFSf\nSzBCyOsXIs/AEjXMipCF6F2Zc0tdg0nrbNcX5d19doGvOsi7QLjoIfvLk1OqpDZf\nrzRt7lArvHHQ/1SAGtZN1qJB3t6lu/+9LWkfcu8930SqQYochshejDt8VPs2greN\n7+uu+xg7r2pCIZ6ZLJIbC4VNOQKBgQDjXHxEAgVs4Ju938GnU5XcPmNG0Tr2w63I\nv2xvnxv1VL2OsozOmuqlEJyjoCYAialI593ifu+e/yVtdJOusCsaVMaEFAFNqXW9\nSMkSljx1xj/Mbw4mxVG4Y5METASFIGw14NiTGBvC4E1XDkmnjd9saZNBogfl42Gf\nvurW6iXmBQKBgBr3gT29s2LEe7Yibq5Vt0eXCp9rIh/czKpLiXFcV2c68x9yG4Ew\nApmXw4rZ1mG5CDQgZmjADmY3roM8zjHVxOhIYVf9lNjL4RWXwESBBKuI7GT+M8q8\n3XphHj2fNRX3zqus4cZ7cl10bQYZUWNBkdju1mSX59YMz0DHoLgSw4ahAoGBAJpa\nE1LoPF6qLZE98u5x5G9dO3C8YtdcCQMcUbWFwylOmlHiDY3Fxj7BhFXhR2teCbsh\nDpXRr0O12+bvGcOifeCmZQ8NtcTPossaOsePjwQ1zuIvEuBnXQ9dKlXkdb0bQdti\nBiX2XAJ03IyZeo9x1Zh4JCyOn+YF9CTLLAszcv8xAoGAVQp6qTHaFF4XTxVXGlQq\nJOIG5GIV3BVxjrRw0IXFH9RqKpw/6lc5GXZnHbvp6qQaxktroJXKKZuUmDSWErjO\n8Flv6xzWi9ONUlxRQcYgMJmceXCpHdJnemLhuum4r37kQvm9djGCG8MiG6PhhBeb\n1+aRWpzVU5gktgzkZBAwDoA=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-sseoc@flowfitimagenes.iam.gserviceaccount.com",
+  "client_id": "113771519474067670946",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-sseoc%40flowfitimagenes.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

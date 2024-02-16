@@ -1,0 +1,159 @@
+CREATE TABLE admins (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  username varchar(255) NOT NULL,
+  first_name varchar(255) DEFAULT NULL,
+  last_name varchar(255) DEFAULT NULL,
+  email varchar(255) NOT NULL,
+  password varchar(255) NOT NULL,
+  birth_date datetime DEFAULT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY username (username),
+  UNIQUE KEY email (email)
+);
+
+CREATE TABLE categories (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(255) NOT NULL,
+  admin_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id)
+);
+
+CREATE TABLE exercises (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(255) NOT NULL,
+  description text DEFAULT NULL,
+  gif_reference varchar(255) DEFAULT NULL,
+  additional_information text DEFAULT NULL,
+  image_path varchar(255) DEFAULT NULL,
+  level varchar(50) DEFAULT NULL,
+  area varchar(255) DEFAULT NULL,
+  admin_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (admin_id) REFERENCES admins(id)
+);
+
+CREATE TABLE memberships (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  title varchar(255) NOT NULL,
+  description text DEFAULT NULL,
+  price decimal(10,2) NOT NULL,
+  admin_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id)
+);
+
+CREATE TABLE members (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  username varchar(255) DEFAULT NULL,
+  password varchar(255) DEFAULT NULL,
+  level varchar(50) DEFAULT NULL,
+  height decimal(5,2) DEFAULT NULL,
+  weight decimal(5,2) DEFAULT NULL,
+  muscle_mass decimal(5,2) DEFAULT NULL,
+  body_fat_percentage decimal(5,2) DEFAULT NULL,
+  name varchar(255) NOT NULL,
+  email varchar(255) DEFAULT NULL,
+  phone varchar(20) DEFAULT NULL,
+  assigned_membership int(11) NOT NULL,
+  registration_date datetime DEFAULT current_timestamp(),
+  end_date datetime DEFAULT NULL,
+  is_active tinyint(4) GENERATED ALWAYS AS (CASE WHEN end_date >= current_timestamp() THEN 1 ELSE 0 END) VIRTUAL,
+  profile_picture varchar(255) DEFAULT NULL,
+  admin_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (assigned_membership) REFERENCES memberships (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id)
+);
+
+CREATE TABLE membership_sales_history (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  membership_id int(11) NOT NULL,
+  sale_date datetime DEFAULT current_timestamp(),
+  admin_id int(11) DEFAULT NULL,
+  member_id int(11) DEFAULT NULL,
+  price decimal(10,2) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (membership_id) REFERENCES memberships (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id),
+  FOREIGN KEY (member_id) REFERENCES members (id)
+);
+
+CREATE TABLE workouts (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(255) NOT NULL,
+  description text DEFAULT NULL,
+  admin_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (admin_id) REFERENCES admins(id)
+);
+
+CREATE TABLE workout_exercises (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  workout_id int(11) NOT NULL,
+  exercise_id int(11) NOT NULL,
+  sets int(11) DEFAULT NULL,
+  reps int(11) DEFAULT NULL,
+  rest int(11) DEFAULT NULL,
+  member_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (workout_id) REFERENCES workouts(id),
+  FOREIGN KEY (exercise_id) REFERENCES exercises(id),
+  FOREIGN KEY (member_id) REFERENCES members(id)
+);
+
+CREATE TABLE providers (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(255) NOT NULL,
+  email varchar(255) DEFAULT NULL,
+  phone varchar(20) DEFAULT NULL,
+  address varchar(255) DEFAULT NULL,
+  admin_id int(11) DEFAULT NULL,
+  image_path varchar(255) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id)
+);
+
+CREATE TABLE products (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  name varchar(255) NOT NULL,
+  description text DEFAULT NULL,
+  price decimal(10,2) NOT NULL,
+  quantity int(11) NOT NULL,
+  category_id int(11) DEFAULT NULL,
+  provider_id int(11) DEFAULT NULL,
+  admin_id int(11) DEFAULT NULL,
+  image_path varchar(255) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (category_id) REFERENCES categories (id),
+  FOREIGN KEY (provider_id) REFERENCES providers (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id)
+);
+
+CREATE TABLE sales_history (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  product_id int(11) DEFAULT NULL,
+  quantity int(11) NOT NULL,
+  sale_price decimal(10,2) NOT NULL,
+  sale_date datetime DEFAULT current_timestamp(),
+  admin_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (product_id) REFERENCES products (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id)
+);
+
+CREATE TABLE qr_codes (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  qr_code_path varchar(255) NOT NULL,
+  admin_id int(11) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id)
+);
+
+CREATE TABLE member_entries (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  member_id int(11) NOT NULL,
+  entry_time datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (id),
+  FOREIGN KEY (member_id) REFERENCES members (id)
+);
