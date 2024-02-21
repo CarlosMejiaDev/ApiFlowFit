@@ -67,4 +67,38 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+router.get('/registeredToday', async (req, res) => {
+  try {
+    const members = await Member.getRegisteredToday();
+    res.json(members);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/totalMembers', async (req, res) => {
+  try {
+    const total = await Member.getTotalMembers();
+    res.json({ total });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/expiringSoon', async (req, res) => {
+  try {
+    const members = await Member.getExpiringSoon();
+    res.json(members);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+router.get('/membersPerDay', async (req, res) => {
+  try {
+    const counts = await Member.getMembersPerDay();
+    res.json(counts);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = router;
