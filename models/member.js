@@ -118,6 +118,47 @@ static async create(member, token) {
       throw err;
     }
   }
+  static async getRegisteredToday() {
+    try {
+      const connection = await mysql.createConnection(config);
+      const [rows] = await connection.execute('SELECT * FROM members WHERE DATE(registration_date) = CURDATE()');
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async getTotalMembers() {
+    try {
+      const connection = await mysql.createConnection(config);
+      const [rows] = await connection.execute('SELECT COUNT(*) as total FROM members');
+      return rows[0].total;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  static async getExpiringSoon() {
+    try {
+      const connection = await mysql.createConnection(config);
+      const [rows] = await connection.execute('SELECT * FROM members WHERE end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 5 DAY)');
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+  }
+  static async getMembersPerDay() {
+    try {
+      const connection = await mysql.createConnection(config);
+      const [rows] = await connection.execute('SELECT DATE(registration_date) as date, COUNT(*) as count FROM members GROUP BY DATE(registration_date)');
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
+
+
+
 
 module.exports = Member;
