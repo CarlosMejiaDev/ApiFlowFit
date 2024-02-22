@@ -22,7 +22,7 @@ class Membership {
       const connection = await mysql.createConnection(config);
       const decoded = jwt.verify(token, 'tu_secreto_jwt');
       const userID = decoded.id;
-      const [result] = await connection.execute('INSERT INTO memberships (title, description, price, admin_id) VALUES (?, ?, ?, ?)', [membership.title, membership.description, membership.price, userID]);
+      const [result] = await connection.execute('INSERT INTO memberships (title, description, admin_id) VALUES (?, ?, ?)', [membership.title, membership.description, userID]);
       return result;
     } catch (err) {
       throw err;
@@ -46,7 +46,7 @@ class Membership {
       const connection = await mysql.createConnection(config);
       const decoded = jwt.verify(token, 'tu_secreto_jwt');
       const userID = decoded.id;
-      const [result] = await connection.execute('UPDATE memberships SET title = ?, description = ?, price = ? WHERE id = ? AND admin_id = ?', [membership.title, membership.description, membership.price, id, userID]);
+      const [result] = await connection.execute('UPDATE memberships SET title = ?, description = ? WHERE id = ? AND admin_id = ?', [membership.title, membership.description, id, userID]);
       return result.affectedRows;
     } catch (err) {
       throw err;

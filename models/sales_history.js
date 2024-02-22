@@ -26,6 +26,17 @@ class SalesHistory {
       throw err;
     }
   }
+  static async getSalesByDate(token) {
+    try {
+      const connection = await mysql.createConnection(config);
+      const decoded = jwt.verify(token, 'tu_secreto_jwt');
+      const adminID = decoded.id;
+      const [rows] = await connection.execute('SELECT DATE(sale_date) as date, COUNT(*) as sales_count FROM sales_history WHERE admin_id = ? GROUP BY DATE(sale_date)', [adminID]);
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
 
 module.exports = SalesHistory;
