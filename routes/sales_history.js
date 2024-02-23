@@ -29,10 +29,11 @@ router.post('/', async (req, res) => {
 router.get('/by-date', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
-    const salesByDate = await SalesHistory.getSalesByDate(token);
+    const salesByDate = await SalesHistory.getProductsSoldByDate(token);
     res.json(salesByDate);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
 module.exports = router;
