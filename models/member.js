@@ -56,9 +56,14 @@ class Member {
     }
 }
 
+
 static async create(member, token) {
   try {
     const connection = await mysql.createConnection(config);
+
+    // Generate a random username and password
+    member.username = Math.random().toString(36).substring(2, 15);
+    member.password = Math.random().toString(36).substring(2, 15);
 
     // Calculate the end date based on the membership duration
     const endDate = new Date();
