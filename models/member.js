@@ -1,5 +1,5 @@
 // models/member.js
-
+const nodemailer = require('nodemailer');
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const config = require('../dbconfig');
@@ -57,6 +57,7 @@ class Member {
 }
 
 
+
 static async create(member, token) {
   try {
     const connection = await mysql.createConnection(config);
@@ -86,11 +87,31 @@ static async create(member, token) {
     member.profile_picture = `https://firebasestorage.googleapis.com/v0/b/flowfitimagenes.appspot.com/o/${encodeURIComponent(file.name)}?alt=media`;
 
     const [result] = await connection.execute('INSERT INTO members (username, password, level, height, weight, muscle_mass, body_fat_percentage, name, email, phone, assigned_membership, registration_date, end_date, profile_picture, admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [member.username, member.password, member.level, member.height, member.weight, member.muscle_mass, member.body_fat_percentage, member.name, member.email, member.phone, member.assigned_membership, new Date(), endDate, member.profile_picture, adminID]);
+
+    // Send an email to the member with their username and password
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'mejiacarlos3210@gmail.com',
+        pass: 'wofyvghdicvonszn'
+      }
+    });
+
+    const mailOptions = {
+      from: 'mejiacarlos3210@gmail.com',
+      to: member.email,
+      subject: `Gracias por usar flowfit, ${member.name}!`,
+      text: `Tu nombre de usuario es ${member.username} y tu contraseña es${member.password}.`
+    };
+
+    await transporter.sendMail(mailOptions);
+
     return result;
   } catch (err) {
     throw err;
   }
 }
+
   static async getAll() {
     try {
       const connection = await mysql.createConnection(config);
