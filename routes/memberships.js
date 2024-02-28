@@ -1,3 +1,5 @@
+// routes/memberships.js
+
 const express = require('express');
 const router = express.Router();
 const Membership = require('../models/membership');
