@@ -14,10 +14,11 @@ const workoutsRoutes = require('./routes/workouts');
 const membershipSalesRoutes = require('./routes/membershipSales');
 const exercisesRoutes = require('./routes/exercises');
 const categoriesRoutes = require('./routes/categories');
+const purchaseRoutes = require('./routes/purchases'); // Asegúrate de que la ruta sea correcta
+
 const { expressjwt: expressJwt } = require('express-jwt');
 const cors = require('cors');
-const swaggerJsDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+
 const admin = require('firebase-admin');
 
 // Configura tus credenciales de Firebase
@@ -69,6 +70,7 @@ app.use('/categories', categoriesRoutes);
 app.use('/workout_exercises', workoutExercisesRoutes);
 app.use('/qr_codes', qrCodesRoutes);
 app.use('/member_entries', memberEntriesRoutes);
+app.use('/purchases', purchaseRoutes);
 
 const port = 3000;
 app.listen(port, () => {
