@@ -2,7 +2,7 @@
 
 const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
-const stripe = require('stripe')('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');
+const stripe = require('stripe')('sk_test_51OounUGf0J9y3KivqLaSCWTvL6lRjYEHVGuLlHI4w3LTM3tZibUdnpg2e78M25e5t3ZgBuJ0rzA4qSraPCM2XGkR00oJ0ziAp0');
 const config = require('../dbconfig');
 
 class Purchase {
