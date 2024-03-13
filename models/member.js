@@ -149,8 +149,14 @@ static async create(member, token) {
         member.profile_picture = `https://firebasestorage.googleapis.com/v0/b/flowfitimagenes.appspot.com/o/${encodeURIComponent(file.name)}?alt=media`;
       }
   
+      // Construye dinámicamente la consulta SQL
+      const fields = Object.keys(member).filter(key => member[key] !== undefined);
+      const placeholders = fields.map(field => `${field} = ?`).join(', ');
+      const values = fields.map(field => member[field]);
+      values.push(id, adminID);
+  
       // Actualiza la entrada del miembro en la base de datos
-      const [result] = await connection.execute('UPDATE members SET username = ?, password = ?, level = ?, height = ?, weight = ?, muscle_mass = ?, body_fat_percentage = ?, name = ?, email = ?, phone = ?, assigned_membership = ?, end_date = ?, profile_picture = ? WHERE id = ? AND admin_id = ?', [member.username, member.password, member.level, member.height, member.weight, member.muscle_mass, member.body_fat_percentage, member.name, member.email, member.phone, member.assigned_membership, member.end_date, member.profile_picture, id, adminID]);
+      const [result] = await connection.execute(`UPDATE members SET ${placeholders} WHERE id = ? AND admin_id = ?`, values);
   
       return result.affectedRows;
     } catch (err) {
