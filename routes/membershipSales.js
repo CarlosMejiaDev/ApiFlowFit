@@ -7,11 +7,10 @@ const MembershipSale = require('../models/MembershipSale');
 router.post('/assign', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
-    const { member_id, membership_id, price } = req.body;
+    const { member_id, membership_id } = req.body;
     const sale = {
       membership_id,
-      member_id,
-      price
+      member_id
     };
 
     const newSale = await MembershipSale.create(sale, token);
@@ -28,16 +27,6 @@ router.get('/', async (req, res) => {
     res.json(sales);
   } catch (err) {
     res.status(500).json({ message: err.message });
-  }
-});
-
-router.post('/', async (req, res) => {
-  try {
-    const token = req.headers.authorization.split(' ')[1];
-    const newSale = await MembershipSale.create(req.body, token);
-    res.status(201).json(newSale);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
 });
 

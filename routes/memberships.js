@@ -4,6 +4,26 @@ const express = require('express');
 const router = express.Router();
 const Membership = require('../models/membership');
 
+router.get('/one-month', async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const memberships = await Membership.getOneMonthMemberships(token);
+    res.json(memberships);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/title/:title', async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const memberships = await Membership.getMembershipsByTitle(token, req.params.title);
+    res.json(memberships);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
@@ -13,6 +33,7 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 router.post('/', async (req, res) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
