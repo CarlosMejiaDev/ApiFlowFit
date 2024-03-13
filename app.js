@@ -2,7 +2,6 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const workoutExercisesRoutes = require('./routes/workoutExercises');
 const providersRoutes = require('./routes/providers');
-const membershipDurationRoutes = require('./routes/membershipDurations');
 const memberEntriesRoutes = require('./routes/member_entries');
 const productsRoutes = require('./routes/products');
 const salesHistoryRoutes = require('./routes/sales_history');
@@ -51,13 +50,12 @@ app.use(express.json());
 
 // Utiliza el módulo expressJwt de express-jwt
 app.use(expressJwt({
-  secret: 'tu_secreto_jwt',
-  algorithms: ['HS256']
-}).unless({
-  path: ['/auth/login', '/auth/register', '/login', '/register', '/members/login']
-}));
+    secret: 'tu_secreto_jwt',
+    algorithms: ['HS256']
+  }).unless({
+    path: ['/auth/login', '/auth/register', '/login', '/register', '/members/login', '/products']
+  }));
 
-app.use('/membershipDurations', membershipDurationRoutes);
 app.use('/membership_sales', membershipSalesRoutes);
 app.use('/providers', providersRoutes);
 app.use('/products', productsRoutes);

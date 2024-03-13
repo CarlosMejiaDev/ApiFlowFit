@@ -1,0 +1,43 @@
+static async create(membership, token) {
+    try {
+      const connection = await mysql.createConnection(config);
+      const decoded = jwt.verify(token, 'tu_secreto_jwt');
+      const userID = decoded.id;
+      const [result] = await connection.execute('INSERT INTO memberships (title, description, admin_id) VALUES (?, ?, ?)', [membership.title, membership.description, userID]);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+static async create(membershipDuration, token) {
+    try {
+      const connection = await mysql.createConnection(config);
+      const adminID = jwt.verify(token, 'tu_secreto_jwt').id;
+      const [result] = await connection.execute('INSERT INTO membership_durations (membership_id, duration, price, admin_id) VALUES (?, ?, ?, ?)', [membershipDuration.membership_id, membershipDuration.duration, membershipDuration.price, adminID]);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  router.post('/', async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const newMembership = await Membership.create(req.body, token);
+      res.status(201).json(newMembership);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  });
+
+  
+router.post('/', async (req, res) => {
+    try {
+      const token = req.headers.authorization.split(' ')[1];
+      const newDuration = await MembershipDuration.create(req.body, token);
+      res.status(201).json(newDuration);
+    } catch (err) {
+      res.status(400).json({ message: err.message });
+    }
+  });

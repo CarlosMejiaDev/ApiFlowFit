@@ -33,23 +33,21 @@
     FOREIGN KEY (admin_id) REFERENCES admins(id)
   );
 
-  CREATE TABLE memberships (
-    id int(11) NOT NULL AUTO_INCREMENT,
-    title varchar(255) NOT NULL,
-    description text DEFAULT NULL,
-    admin_id int(11) DEFAULT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (admin_id) REFERENCES admins (id)
-  );
-
-  CREATE TABLE membership_durations (
+CREATE TABLE memberships (
   id int(11) NOT NULL AUTO_INCREMENT,
-  membership_id int(11) NOT NULL,
+  title varchar(255) NOT NULL,
+  description text DEFAULT NULL,
   duration int(11) NOT NULL,
   price decimal(10,2) NOT NULL,
-  admin_id int(11) NOT NULL,
+  discount decimal(10,2) GENERATED ALWAYS AS (CASE
+    WHEN duration >= 12 THEN price * 0.25 -- 25% discount for 12+ months
+    WHEN duration >= 6 THEN price * 0.15 -- 15% discount for 6-11 months
+    WHEN duration >= 3 THEN price * 0.05 -- 5% discount for 3-5 months
+    ELSE 0 -- no discount for less than 3 months
+  END),
+  total_price decimal(10,2) AS ((duration * price) - discount),
+  admin_id int(11) DEFAULT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (membership_id) REFERENCES memberships (id),
   FOREIGN KEY (admin_id) REFERENCES admins (id)
 );
 
@@ -76,18 +74,18 @@
     FOREIGN KEY (admin_id) REFERENCES admins (id)
   );
 
-  CREATE TABLE membership_sales_history (
-    id int(11) NOT NULL AUTO_INCREMENT,
-    membership_id int(11) NOT NULL,
-    sale_date datetime DEFAULT current_timestamp(),
-    admin_id int(11) DEFAULT NULL,
-    member_id int(11) DEFAULT NULL,
-    price decimal(10,2) NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (membership_id) REFERENCES memberships (id),
-    FOREIGN KEY (admin_id) REFERENCES admins (id),
-    FOREIGN KEY (member_id) REFERENCES members (id)
-  );
+CREATE TABLE membership_sales_history (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  membership_id int(11) NOT NULL,
+  sale_date datetime DEFAULT current_timestamp(),
+  admin_id int(11) DEFAULT NULL,
+  member_id int(11) DEFAULT NULL,
+  price decimal(10,2) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (membership_id) REFERENCES memberships (id),
+  FOREIGN KEY (admin_id) REFERENCES admins (id),
+  FOREIGN KEY (member_id) REFERENCES members (id)
+);
 
   CREATE TABLE workouts (
     id int(11) NOT NULL AUTO_INCREMENT,
@@ -182,15 +180,17 @@ CREATE TABLE purchases (
 );
 
 
-  DELIMITER //
-
-  CREATE TRIGGER after_member_insert
-  AFTER INSERT ON members
-  FOR EACH ROW
-  BEGIN
-      INSERT INTO membership_sales_history (membership_id, sale_date, admin_id, member_id, price)
-      VALUES (NEW.assigned_membership, CURRENT_TIMESTAMP(), NEW.admin_id, NEW.id, (SELECT price FROM memberships WHERE id = NEW.assigned_membership));
-  END;
-  //
-
-  DELIMITER ;
+DELIMITER //
+CREATE TRIGGER update_price BEFORE INSERT ON membership_sales_history
+FOR EACH ROW
+BEGIN
+  DECLARE membership_price decimal(10,2);
+  
+  SELECT price INTO membership_price
+  FROM memberships
+  WHERE id = NEW.membership_id;
+  
+  SET NEW.price = membership_price;
+END;
+//
+DELIMITER ;
