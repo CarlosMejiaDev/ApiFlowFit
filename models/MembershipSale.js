@@ -9,7 +9,8 @@ class MembershipSale {
     try {
       const connection = await mysql.createConnection(config);
       const adminID = jwt.verify(token, 'tu_secreto_jwt').id;
-      const [result] = await connection.execute('INSERT INTO membership_sales_history (membership_id, sale_date, admin_id, member_id, price) VALUES (?, ?, ?, ?, ?)', [sale.membership_id, new Date(), adminID, sale.member_id, sale.price]);
+      const [membership] = await connection.execute('SELECT * FROM memberships WHERE id = ?', [sale.membership_id]);
+      const [result] = await connection.execute('INSERT INTO membership_sales_history (membership_id, sale_date, admin_id, member_id, price) VALUES (?, ?, ?, ?, ?)', [sale.membership_id, new Date(), adminID, sale.member_id, membership[0].price]);
       return result;
     } catch (err) {
       throw err;
