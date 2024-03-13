@@ -138,12 +138,26 @@ static async create(member, token) {
       const connection = await mysql.createConnection(config);
       const decoded = jwt.verify(token, 'tu_secreto_jwt');
       const adminID = decoded.id;
+  
+      // Verifica si hay una nueva imagen proporcionada
+      if (member.profile_picture && member.profile_picture.name && member.profile_picture.data) {
+        // Sube la nueva imagen al Firebase Storage
+        const file = bucket.file(`profile_pictures/${member.profile_picture.name}`);
+        await file.save(member.profile_picture.data);
+  
+        // Actualiza la URL de la imagen en la base de datos
+        member.profile_picture = `https://firebasestorage.googleapis.com/v0/b/flowfitimagenes.appspot.com/o/${encodeURIComponent(file.name)}?alt=media`;
+      }
+  
+      // Actualiza la entrada del miembro en la base de datos
       const [result] = await connection.execute('UPDATE members SET username = ?, password = ?, level = ?, height = ?, weight = ?, muscle_mass = ?, body_fat_percentage = ?, name = ?, email = ?, phone = ?, assigned_membership = ?, end_date = ?, profile_picture = ? WHERE id = ? AND admin_id = ?', [member.username, member.password, member.level, member.height, member.weight, member.muscle_mass, member.body_fat_percentage, member.name, member.email, member.phone, member.assigned_membership, member.end_date, member.profile_picture, id, adminID]);
+  
       return result.affectedRows;
     } catch (err) {
       throw err;
     }
   }
+  
   static async getRegisteredToday() {
     try {
       const connection = await mysql.createConnection(config);
