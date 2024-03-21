@@ -56,8 +56,6 @@ class Member {
     }
 }
 
-
-
 static async create(member, token) {
   try {
     const connection = await mysql.createConnection(config);
@@ -65,10 +63,6 @@ static async create(member, token) {
     // Generate a random username and password
     member.username = Math.random().toString(36).substring(2, 15);
     member.password = Math.random().toString(36).substring(2, 15);
-
-    // Calculate the end date based on the membership duration
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + Number(member.membership_duration));
 
     // Decode the JWT to get the user ID
     const decoded = jwt.verify(token, 'tu_secreto_jwt');
@@ -85,6 +79,14 @@ static async create(member, token) {
 
     // Guarda la URL de la imagen en la base de datos
     member.profile_picture = `https://firebasestorage.googleapis.com/v0/b/flowfitimagenes.appspot.com/o/${encodeURIComponent(file.name)}?alt=media`;
+
+    // Get the membership duration from the memberships table
+    const [membership] = await connection.execute('SELECT duration FROM memberships WHERE id = ?', [member.assigned_membership]);
+    const membershipDuration = membership[0].duration;
+
+    // Calculate the end date based on the membership duration
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + membershipDuration);
 
     const [result] = await connection.execute('INSERT INTO members (username, password, level, height, weight, muscle_mass, body_fat_percentage, name, email, phone, assigned_membership, registration_date, end_date, profile_picture, admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [member.username, member.password, member.level, member.height, member.weight, member.muscle_mass, member.body_fat_percentage, member.name, member.email, member.phone, member.assigned_membership, new Date(), endDate, member.profile_picture, adminID]);
 
