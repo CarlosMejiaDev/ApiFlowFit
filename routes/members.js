@@ -4,7 +4,39 @@ const Member = require('../models/member');
 const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const upload = multer({ storage: multer.memoryStorage() });
+const stripe = require('stripe')('sk_test_51OounUGf0J9y3KivqLaSCWTvL6lRjYEHVGuLlHI4w3LTM3tZibUdnpg2e78M25e5t3ZgBuJ0rzA4qSraPCM2XGkR00oJ0ziAp0');
 
+router.get('/activeMembers', async (req, res) => {
+  try {
+    const activeMembers = await Member.getActiveMembers();
+    res.json(activeMembers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/inactiveMembers', async (req, res) => {
+  try {
+    const inactiveMembers = await Member.getInactiveMembers();
+    res.json(inactiveMembers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.put('/renew/:id', async (req, res) => {
+  try {
+    const { membershipId, isStripe, stripeToken } = req.body;
+    const memberId = req.params.id;
+    const token = req.headers.authorization.split(' ')[1]; // Assumes 'Bearer your_token'
+
+    const result = await Member.reinscripcion(memberId, membershipId, isStripe, stripeToken, token);
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -14,7 +46,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
-    const token = jwt.sign({ id: member.id }, 'tu_secreto_jwt', { expiresIn: '1h' });
+    const token = jwt.sign({ id: member.id, role: 'member' }, 'tu_secreto_jwt', { expiresIn: '1h' });
     res.json({ accessToken: token, member });
   } catch (err) {
     res.status(400).json({ message: err.message });
