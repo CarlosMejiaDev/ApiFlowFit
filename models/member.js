@@ -4,6 +4,7 @@ const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const config = require('../dbconfig');
 const admin = require('firebase-admin');
+const MembershipSale = require('./MembershipSale');
 
 // Configura tus credenciales de Firebase
 var serviceAccount = require("../keyStorage.json");
@@ -49,16 +50,21 @@ class Member {
       }
   
       // Genera un token para el miembro
-      const token = jwt.sign({ memberID: member.id, role: 'member' }, 'tu_secreto_jwt', { expiresIn: '1h' });  
+      const token = jwt.sign({ id: member.id, role: 'member' }, 'tu_secreto_jwt', { expiresIn: '1h' });  
       return { member, token };
     } catch (err) {
       throw err;
     }
 }
-
 static async create(member, token) {
   try {
     const connection = await mysql.createConnection(config);
+
+    // Check if a member with the same email already exists
+    const [existingMember] = await connection.execute('SELECT * FROM members WHERE email = ?', [member.email]);
+    if (existingMember.length > 0) {
+      throw new Error('A member with this email already exists');
+    }
 
     // Generate a random username and password
     member.username = Math.random().toString(36).substring(2, 15);
@@ -90,6 +96,13 @@ static async create(member, token) {
 
     const [result] = await connection.execute('INSERT INTO members (username, password, level, height, weight, muscle_mass, body_fat_percentage, name, email, phone, assigned_membership, registration_date, end_date, profile_picture, admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [member.username, member.password, member.level, member.height, member.weight, member.muscle_mass, member.body_fat_percentage, member.name, member.email, member.phone, member.assigned_membership, new Date(), endDate, member.profile_picture, adminID]);
 
+    // Create a new membership sale
+    const sale = {
+      membership_id: member.assigned_membership,
+      member_id: result.insertId
+    };
+    await MembershipSale.create(sale, token);
+
     // Send an email to the member with their username and password
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -103,7 +116,7 @@ static async create(member, token) {
       from: 'mejiacarlos3210@gmail.com',
       to: member.email,
       subject: `Gracias por usar flowfit, ${member.name}!`,
-      text: `Tu nombre de usuario es ${member.username} y tu contraseña es${member.password}.`
+      text: `Tu nombre de usuario es ${member.username} y tu contraseña es ${member.password}.`
     };
 
     await transporter.sendMail(mailOptions);
@@ -113,7 +126,57 @@ static async create(member, token) {
     throw err;
   }
 }
+static async reinscripcion(memberId, membershipId, isStripe, stripeToken, token) {
+  try {
+    const connection = await mysql.createConnection(config);
 
+    // Get the membership duration and price
+    const [membership] = await connection.execute('SELECT duration, price FROM memberships WHERE id = ?', [membershipId]);
+    if (!membership[0]) {
+      throw new Error(`Membership with id ${membershipId} not found.`);
+    }
+    const membershipDuration = membership[0].duration;
+
+    // Get the current end date
+    const [member] = await connection.execute('SELECT end_date FROM members WHERE id = ?', [memberId]);
+    if (!member[0]) {
+      throw new Error(`Member with id ${memberId} not found.`);
+    }
+    let endDate = new Date(member[0].end_date);
+
+    // If the end date is before the current date, set it to the current date
+    if (endDate < new Date()) {
+      endDate = new Date();
+    }
+
+    // Add the membership duration to the end date
+    endDate.setMonth(endDate.getMonth() + membershipDuration);
+
+    // Update the end date and membership id in the database
+    await connection.execute('UPDATE members SET end_date = ?, assigned_membership = ? WHERE id = ?', [endDate, membershipId, memberId]);
+    // If using Stripe, validate the payment
+    if (isStripe) {
+      const stripe = require('stripe')('sk_test_51OounUGf0J9y3KivqLaSCWTvL6lRjYEHVGuLlHI4w3LTM3tZibUdnpg2e78M25e5t3ZgBuJ0rzA4qSraPCM2XGkR00oJ0ziAp0');
+      await stripe.charges.create({
+        amount: membership[0].price * 100, // Stripe requires the amount in cents
+        currency: 'MXN',
+        source: stripeToken,
+        description: `Membership renewal for member ${memberId}`
+      });
+    }
+
+    // Create a new membership sale
+    const sale = {
+      membership_id: membershipId,
+      member_id: memberId
+    };
+    await MembershipSale.create(sale, token);
+
+    return { success: true };
+  } catch (err) {
+    throw err;
+  }
+}
   static async getAll() {
     try {
       const connection = await mysql.createConnection(config);
@@ -123,6 +186,25 @@ static async create(member, token) {
       throw err;
     }
   }
+  static async getActiveMembers() {
+    try {
+      const connection = await mysql.createConnection(config);
+      const [rows] = await connection.execute('SELECT * FROM members WHERE is_active = 1');
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+}
+
+static async getInactiveMembers() {
+    try {
+      const connection = await mysql.createConnection(config);
+      const [rows] = await connection.execute('SELECT * FROM members WHERE is_active = 0');
+      return rows;
+    } catch (err) {
+      throw err;
+    }
+}
   static async delete(id, token) {
     try {
       const connection = await mysql.createConnection(config);
@@ -139,7 +221,7 @@ static async create(member, token) {
     try {
       const connection = await mysql.createConnection(config);
       const decoded = jwt.verify(token, 'tu_secreto_jwt');
-      const adminID = decoded.id;
+      const memberID = decoded.id;
   
       // Verifica si hay una nueva imagen proporcionada
       if (member.profile_picture && member.profile_picture.name && member.profile_picture.data) {
@@ -155,10 +237,10 @@ static async create(member, token) {
       const fields = Object.keys(member).filter(key => member[key] !== undefined);
       const placeholders = fields.map(field => `${field} = ?`).join(', ');
       const values = fields.map(field => member[field]);
-      values.push(id, adminID);
+      values.push(id);
   
       // Actualiza la entrada del miembro en la base de datos
-      const [result] = await connection.execute(`UPDATE members SET ${placeholders} WHERE id = ? AND admin_id = ?`, values);
+      const [result] = await connection.execute(`UPDATE members SET ${placeholders} WHERE id = ? AND id = ?`, [...values, memberID]);
   
       return result.affectedRows;
     } catch (err) {

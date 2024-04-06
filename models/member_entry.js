@@ -4,13 +4,39 @@ const jwt = require('jsonwebtoken');
 const config = require('../dbconfig');
 
 class MemberEntry {
-  static async getAll(token) {
+  static async getMemberData(token) {
     try {
       const connection = await mysql.createConnection(config);
-      const decoded = jwt.verify(token, 'tu_secreto_jwt');
-      const memberID = decoded.memberID;
-      console.log(decoded);
-      const [rows] = await connection.execute('SELECT * FROM member_entries WHERE member_id = ?', [memberID]);
+      const actualToken = token.replace('Bearer ', ''); // Eliminar el prefijo 'Bearer ' si está presente
+      console.log('Token:', actualToken); // Agregar registro de consola para el token
+      const decoded = jwt.verify(actualToken, 'tu_secreto_jwt');
+      console.log('Decoded:', decoded); // Agregar registro de consola para el objeto decodificado
+  
+      if (!decoded || decoded.role !== 'member') {
+        throw new Error('Invalid token or not a member');
+      }
+  
+      const query = 'SELECT * FROM member_entries WHERE member_id = ?';
+      const [rows] = await connection.execute(query, [decoded.id]);
+      return rows;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+
+  static async getAllData(token) {
+    try {
+      const connection = await mysql.createConnection(config);
+      const actualToken = token.replace('Bearer ', ''); // Eliminar el prefijo 'Bearer ' si está presente
+      const decoded = jwt.verify(actualToken, 'tu_secreto_jwt');
+
+      if (!decoded || decoded.role !== 'admin') {
+        throw new Error('Invalid token or not an admin');
+      }
+
+      const query = 'SELECT * FROM member_entries';
+      const [rows] = await connection.execute(query);
       return rows;
     } catch (err) {
       console.error(err);
